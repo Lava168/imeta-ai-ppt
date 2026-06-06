@@ -1,0 +1,139 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ProjectScenario {
+  research_presentation
+  business_plan
+}
+
+enum ProjectStatus {
+  DRAFT
+  OUTLINE_GENERATED
+  PPTX_GENERATING
+  PPTX_READY
+  FAILED
+}
+
+enum JobType {
+  OUTLINE
+  PPTX
+}
+
+enum JobStatus {
+  QUEUED
+  RUNNING
+  SUCCEEDED
+  FAILED
+}
+
+model User {
+  id        String    @id @default(cuid())
+  email     String?   @unique
+  name      String?
+  projects  Project[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Project {
+  id             String          @id @default(cuid())
+  userId         String?
+  title          String
+  scenario       ProjectScenario
+  topic          String
+  sourceText     String?
+  slideCount     Int
+  templateKey    String
+  status         ProjectStatus   @default(DRAFT)
+  outline        Json?
+  pptxUrl        String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  user           User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
+  template       Template        @relation(fields: [templateKey], references: [key], onDelete: Restrict)
+  slides         Slide[]
+  slideComponents SlideComponent[]
+  generationJobs GenerationJob[]
+
+  @@index([userId])
+  @@index([scenario])
+  @@index([templateKey])
+  @@index([status])
+}
+
+model Slide {
+  id           String           @id @default(cuid())
+  projectId    String
+  order        Int
+  title        String
+  layout       String
+  components   Json
+  speakerNotes String?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  project      Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  slideComponents SlideComponent[]
+
+  @@unique([projectId, order])
+  @@index([projectId])
+}
+
+model SlideComponent {
+  id        String   @id @default(cuid())
+  projectId String
+  slideId   String
+  order     Int
+  type      String
+  role      String?
+  name      String
+  bounds    Json
+  data      Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  slide     Slide    @relation(fields: [slideId], references: [id], onDelete: Cascade)
+
+  @@unique([slideId, order])
+  @@index([projectId])
+  @@index([slideId])
+  @@index([type])
+  @@index([role])
+}
+
+model Template {
+  id        String          @id @default(cuid())
+  key       String          @unique
+  name      String
+  scenario  ProjectScenario
+  theme     Json
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  projects  Project[]
+
+  @@index([scenario])
+}
+
+model GenerationJob {
+  id        String    @id @default(cuid())
+  projectId String
+  type      JobType
+  status    JobStatus @default(QUEUED)
+  input     Json?
+  output    Json?
+  error     String?
+  startedAt DateTime?
+  endedAt   DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  project   Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([status])
+  @@index([type])
+}

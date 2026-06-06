@@ -1,0 +1,141 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 39 24% 96%;
+    --foreground: 223 22% 18%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 164 22% 38%;
+    --primary-foreground: 42 30% 97%;
+    --secondary: 143 16% 84%;
+    --secondary-foreground: 157 18% 24%;
+    --muted: 38 18% 88%;
+    --muted-foreground: 220 10% 42%;
+    --accent: 14 32% 82%;
+    --accent-foreground: 18 24% 26%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 35 16% 78%;
+    --input: 35 16% 78%;
+    --ring: 164 22% 38%;
+    --radius: 0.5rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    background:
+      radial-gradient(circle at 16% 12%, hsl(143 16% 84% / 0.58), transparent 24rem),
+      radial-gradient(circle at 88% 18%, hsl(14 32% 82% / 0.46), transparent 24rem),
+      radial-gradient(circle at 60% 86%, hsl(211 19% 82% / 0.34), transparent 26rem),
+      linear-gradient(118deg, hsl(39 28% 97%) 0%, hsl(74 14% 94%) 48%, hsl(25 22% 94%) 100%),
+      repeating-linear-gradient(
+        90deg,
+        hsl(223 22% 18% / 0.018) 0,
+        hsl(223 22% 18% / 0.018) 1px,
+        transparent 1px,
+        transparent 48px
+      );
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
+  }
+}
+
+@layer utilities {
+  .surface-panel {
+    @apply border border-white/75 bg-white/[0.68] shadow-[0_20px_65px_rgba(64,58,50,0.075)] backdrop-blur-xl;
+  }
+
+  .surface-subtle {
+    @apply border border-white/70 bg-white/[0.58] shadow-sm backdrop-blur;
+  }
+
+  .morandi-card {
+    @apply border border-white/70 bg-white/[0.62] shadow-[0_18px_48px_rgba(64,58,50,0.065)] backdrop-blur-xl transition-all duration-500 ease-out;
+  }
+
+  .morandi-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 26px 68px rgba(64, 58, 50, 0.095);
+  }
+
+  .atelier-grid {
+    background-image:
+      linear-gradient(rgba(44, 48, 58, 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(44, 48, 58, 0.03) 1px, transparent 1px);
+    background-size: 28px 28px;
+    mask-image: linear-gradient(to bottom, black, transparent 92%);
+  }
+
+  .atelier-glow {
+    box-shadow:
+      0 28px 90px rgba(64, 58, 50, 0.11),
+      inset 0 1px 0 rgba(255, 255, 255, 0.82);
+  }
+
+  .premium-lift {
+    @apply transition-all duration-500 ease-out;
+  }
+
+  .premium-lift:hover {
+    transform: translateY(-4px) scale(1.006);
+    box-shadow: 0 30px 86px rgba(64, 58, 50, 0.12);
+  }
+
+  .ambient-float {
+    animation: ambient-float 9s ease-in-out infinite;
+  }
+
+  .ambient-float-slow {
+    animation: ambient-float 12s ease-in-out infinite;
+  }
+
+  .soft-shimmer {
+    background-size: 180% 180%;
+    animation: soft-shimmer 12s ease-in-out infinite;
+  }
+
+  .slow-pan {
+    background-size: 145% 145%;
+    animation: soft-shimmer 18s ease-in-out infinite;
+  }
+
+  .eyebrow {
+    @apply text-xs font-semibold uppercase text-primary;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@keyframes ambient-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(0, -10px, 0);
+  }
+}
+
+@keyframes soft-shimmer {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+}
