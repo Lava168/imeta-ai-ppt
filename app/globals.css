@@ -109,6 +109,76 @@
     animation: soft-shimmer 18s ease-in-out infinite;
   }
 
+  .kinetic-surface {
+    @apply relative overflow-hidden;
+  }
+
+  .kinetic-surface::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      110deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.18) 42%,
+      rgba(255, 255, 255, 0.46) 50%,
+      rgba(255, 255, 255, 0.14) 58%,
+      transparent 100%
+    );
+    transform: translateX(-120%);
+    animation: surface-sweep 7s ease-in-out infinite;
+  }
+
+  .motion-border {
+    @apply relative;
+  }
+
+  .motion-border::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: conic-gradient(
+      from 160deg,
+      rgba(117, 139, 127, 0.18),
+      rgba(201, 183, 168, 0.36),
+      rgba(215, 219, 225, 0.28),
+      rgba(117, 139, 127, 0.18)
+    );
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+    animation: border-drift 9s linear infinite;
+  }
+
+  .stagger-rise {
+    animation: stagger-rise 620ms ease-out both;
+  }
+
+  .pulse-thread {
+    position: relative;
+  }
+
+  .pulse-thread::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 2px;
+    background: linear-gradient(
+      to bottom,
+      rgba(117, 139, 127, 0),
+      rgba(117, 139, 127, 0.7),
+      rgba(168, 143, 130, 0)
+    );
+    animation: thread-pulse 3.8s ease-in-out infinite;
+  }
+
   .eyebrow {
     @apply text-xs font-semibold uppercase text-primary;
   }
@@ -137,5 +207,48 @@
 
   50% {
     background-position: 100% 50%;
+  }
+}
+
+@keyframes surface-sweep {
+  0%,
+  45% {
+    transform: translateX(-120%);
+  }
+
+  70%,
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+@keyframes border-drift {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+@keyframes stagger-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes thread-pulse {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: translateY(-18%);
+  }
+
+  50% {
+    opacity: 0.8;
+    transform: translateY(18%);
   }
 }

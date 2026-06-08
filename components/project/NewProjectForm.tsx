@@ -1,7 +1,14 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FileUp, WandSparkles } from "lucide-react";
+import {
+  BrainCircuit,
+  FileText,
+  FileUp,
+  Layers3,
+  MessageSquareText,
+  WandSparkles,
+} from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
@@ -110,6 +117,8 @@ export function NewProjectForm() {
   const scenario = watch("scenario");
   const slideCount = watch("slideCount");
   const templateKey = watch("templateKey");
+  const topic = watch("topic");
+  const sourceText = watch("sourceText");
 
   useEffect(() => {
     const currentSlideCount = getValues("slideCount");
@@ -142,6 +151,10 @@ export function NewProjectForm() {
       ),
     [scenario, templateKey],
   );
+  const previewSections =
+    scenario === "research_presentation"
+      ? ["研究背景", "方法与数据", "实验结果", "结论与展望"]
+      : ["痛点机会", "解决方案", "商业模式", "增长里程碑"];
 
   function updateScenario(value: ProjectScenario) {
     setValue("scenario", value, { shouldDirty: true, shouldValidate: true });
@@ -166,13 +179,21 @@ export function NewProjectForm() {
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
-      <Card className="surface-panel">
-        <CardHeader>
-          <CardTitle>演示 brief</CardTitle>
-          <CardDescription>
-            像给设计师的一页说明：主题、资料、篇幅和视觉方向。
-          </CardDescription>
+    <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_430px]">
+      <Card className="surface-panel kinetic-surface motion-border">
+        <CardHeader className="border-b border-white/70 bg-white/[0.36]">
+          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+            <div>
+              <p className="eyebrow">Brief Studio</p>
+              <CardTitle className="mt-2 text-2xl">演示 brief</CardTitle>
+              <CardDescription className="mt-2">
+                像给设计师的一页说明：主题、资料、篇幅和视觉方向。
+              </CardDescription>
+            </div>
+            <div className="rounded-full border border-white/75 bg-white/[0.56] px-3 py-1.5 text-xs text-muted-foreground shadow-sm">
+              Outline first · Editable PPTX
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
@@ -216,29 +237,17 @@ export function NewProjectForm() {
         </CardContent>
       </Card>
 
-      <aside className="space-y-4">
-        <Card className="surface-panel overflow-hidden">
-          <CardHeader>
-            <CardTitle className="text-lg">创作参数</CardTitle>
-            <CardDescription>进入工作台后仍可继续调整内容。</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3 text-sm">
-            <div className="flex justify-between gap-4">
-              <span className="text-muted-foreground">类型</span>
-              <span className="font-medium">{selectedScenarioLabel}</span>
-            </div>
-            <div className="flex justify-between gap-4">
-              <span className="text-muted-foreground">页数</span>
-              <span className="font-medium">{slideCount} 页</span>
-            </div>
-            <div className="flex justify-between gap-4">
-              <span className="text-muted-foreground">模板</span>
-              <span className="font-medium">
-                {selectedTemplate?.name ?? templateKey}
-              </span>
-            </div>
-          </CardContent>
-        </Card>
+      <aside className="space-y-4 xl:sticky xl:top-24 xl:self-start">
+        <LiveDeckPreview
+          scenarioLabel={selectedScenarioLabel}
+          topic={topic}
+          slideCount={slideCount}
+          templateName={selectedTemplate?.name ?? templateKey}
+          sourceText={sourceText ?? ""}
+          previewSections={previewSections}
+        />
+
+        <GenerationTrack scenario={scenario} />
 
         <Card className="surface-panel overflow-hidden">
           <CardHeader>
@@ -258,6 +267,143 @@ export function NewProjectForm() {
           </CardContent>
         </Card>
       </aside>
+    </div>
+  );
+}
+
+function LiveDeckPreview({
+  scenarioLabel,
+  topic,
+  slideCount,
+  templateName,
+  sourceText,
+  previewSections,
+}: {
+  scenarioLabel: string;
+  topic: string;
+  slideCount: string;
+  templateName: string;
+  sourceText: string;
+  previewSections: string[];
+}) {
+  const filledSource = sourceText.trim().length > 0;
+
+  return (
+    <Card className="surface-panel kinetic-surface overflow-hidden">
+      <CardHeader className="border-b border-white/70 bg-white/[0.36]">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="eyebrow">Live preview</p>
+            <CardTitle className="mt-2 text-lg">生成预览</CardTitle>
+          </div>
+          <span className="rounded-full border border-white/75 bg-white/[0.58] px-3 py-1 text-xs text-muted-foreground shadow-sm">
+            {slideCount} pages
+          </span>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4 p-4">
+        <div className="slow-pan rounded-md border border-white/75 bg-[linear-gradient(135deg,#fbfaf7,#dde5dd_42%,#d7dbe1_70%,#ead8cf)] p-4">
+          <div className="rounded-md border border-white/75 bg-white/[0.66] p-4 shadow-sm backdrop-blur">
+            <div className="mb-5 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <span className="grid h-8 w-8 place-items-center rounded-md bg-foreground text-white">
+                  <Layers3 className="h-4 w-4" />
+                </span>
+                <span className="text-sm font-semibold">{scenarioLabel}</span>
+              </div>
+              <span className="rounded-full border bg-white/[0.66] px-2.5 py-1 text-[11px] text-muted-foreground">
+                {templateName}
+              </span>
+            </div>
+
+            <div className="aspect-video rounded-md border border-white/80 bg-[#fffdf8] p-5 shadow-[0_18px_44px_rgba(64,58,50,0.08)]">
+              <p className="text-xs font-semibold uppercase text-primary">
+                cover
+              </p>
+              <h3 className="mt-4 line-clamp-2 text-2xl font-semibold tracking-normal">
+                {topic.trim() || "输入主题后，预览会同步更新"}
+              </h3>
+              <div className="mt-5 grid grid-cols-[1fr_110px] gap-4">
+                <div className="space-y-2">
+                  {previewSections.slice(0, 3).map((section, index) => (
+                    <div key={section} className="flex items-center gap-2 text-sm">
+                      <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                      <span>{section}</span>
+                      <span
+                        className="stagger-rise h-px flex-1 bg-border/70"
+                        style={{ animationDelay: `${index * 120}ms` }}
+                      />
+                    </div>
+                  ))}
+                </div>
+                <div className="soft-shimmer rounded-md border border-white/75 bg-[linear-gradient(135deg,#758b7f,#c9b7a8,#d7dbe1,#ede7dc)]" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-2 text-xs">
+          <Metric label="资料" value={filledSource ? "已补充" : "可选"} />
+          <Metric label="备注" value="自动生成" />
+          <Metric label="导出" value="可编辑" />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function GenerationTrack({ scenario }: { scenario: ProjectScenario }) {
+  const steps =
+    scenario === "research_presentation"
+      ? [
+          { title: "提炼问题", icon: BrainCircuit },
+          { title: "整理方法", icon: FileText },
+          { title: "补充备注", icon: MessageSquareText },
+        ]
+      : [
+          { title: "识别痛点", icon: BrainCircuit },
+          { title: "组织商业模型", icon: FileText },
+          { title: "生成路演话术", icon: MessageSquareText },
+        ];
+
+  return (
+    <Card className="surface-panel overflow-hidden">
+      <CardHeader>
+        <CardTitle className="text-lg">AI 生成路径</CardTitle>
+        <CardDescription>先结构，后内容，再导出可编辑 PPTX。</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {steps.map((step, index) => {
+          const Icon = step.icon;
+
+          return (
+            <div
+              key={step.title}
+              className="pulse-thread stagger-rise flex items-center gap-3 rounded-md border border-white/70 bg-white/[0.46] p-3"
+              style={{ animationDelay: `${index * 120}ms` }}
+            >
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-secondary text-primary shadow-sm">
+                <Icon className="h-4 w-4" />
+              </span>
+              <div>
+                <p className="text-sm font-semibold">{step.title}</p>
+                <p className="text-xs text-muted-foreground">
+                  {String(index + 1).padStart(2, "0")} · 可编辑结构
+                </p>
+              </div>
+            </div>
+          );
+        })}
+      </CardContent>
+    </Card>
+  );
+}
+
+function Metric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-md border border-white/70 bg-white/[0.48] p-3 shadow-sm">
+      <p className="text-[11px] text-muted-foreground">{label}</p>
+      <p className="mt-1 font-semibold text-primary">{value}</p>
     </div>
   );
 }
