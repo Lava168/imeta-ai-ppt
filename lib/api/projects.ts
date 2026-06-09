@@ -33,6 +33,10 @@ export function getMockProject(projectId: string): ProjectDetailMock {
     return buildExampleResearchMedicalProject(projectId);
   }
 
+  if (projectId === "example-business-sales-ai") {
+    return buildExampleBusinessSalesProject(projectId);
+  }
+
   const scenario: ProjectScenario = projectId.includes("business_plan")
     ? "business_plan"
     : "research_presentation";
@@ -53,6 +57,30 @@ export function getMockProject(projectId: string): ProjectDetailMock {
       updatedAt: now,
     },
     slides: slides.map((slide) => hydrateSlideDraft(slide, scenario, projectId)),
+  };
+}
+
+function buildExampleBusinessSalesProject(projectId: string): ProjectDetailMock {
+  const title = "AI 销售助手商业计划书";
+  const slides = exampleBusinessSalesSlides;
+
+  return {
+    project: {
+      id: projectId,
+      title,
+      scenario: "business_plan",
+      topic: title,
+      sourceText:
+        "示例资料：项目面向 B2B 销售团队，提供线索跟进、客户沟通摘要、销售话术建议和 CRM 更新辅助能力。当前未提供真实市场规模、收入预测、竞品数据和融资金额，因此相关字段以待补充标记呈现。",
+      slideCount: slides.length,
+      templateKey: "business_clean",
+      status: "outline_ready",
+      createdAt: now,
+      updatedAt: now,
+    },
+    slides: slides.map((slide) =>
+      hydrateSlideDraft(slide, "business_plan", projectId),
+    ),
   };
 }
 
@@ -841,5 +869,219 @@ const businessSlides: SlideDraft[] = [
       bullets: ["总结", "联系方式"],
     },
     speakerNotes: "收束价值并留下联系信息。",
+  },
+];
+
+const exampleBusinessSalesSlides: SlideDraft[] = [
+  {
+    id: "sales-cover",
+    order: 1,
+    title: "AI 销售助手商业计划书",
+    layout: "cover",
+    legacyContent: {
+      subtitle: "帮助 B2B 销售团队更快跟进线索与客户",
+      bullets: ["项目名称：AI 销售助手", "一句话介绍：待补充", "团队 / 日期：待补充"],
+    },
+    speakerNotes:
+      "开场用一句话说明项目价值：面向 B2B 销售团队，帮助销售人员整理客户信息、生成跟进建议并减少 CRM 录入负担。具体团队与日期后续补充。",
+  },
+  {
+    id: "sales-pain",
+    order: 2,
+    title: "痛点与机会",
+    layout: "problem_solution",
+    legacyContent: {
+      subtitle: "销售跟进效率低，客户信息分散",
+      bullets: [
+        "客户沟通记录分散",
+        "销售跟进高度依赖人工",
+        "CRM 录入耗时且不完整",
+        "线索响应速度影响转化",
+      ],
+    },
+    speakerNotes:
+      "这一页讲问题强度。建议用真实访谈或团队数据补充，比如销售每天花多少时间整理记录，但当前没有数据，不能编造。",
+  },
+  {
+    id: "sales-solution",
+    order: 3,
+    title: "解决方案",
+    layout: "problem_solution",
+    legacyContent: {
+      subtitle: "将客户信息、跟进建议和 CRM 更新自动串联",
+      leftBullets: [
+        "自动总结客户沟通",
+        "生成下一步跟进建议",
+        "沉淀销售知识库",
+      ],
+      rightBullets: [
+        "减少重复录入",
+        "提升线索响应速度",
+        "帮助新人快速上手",
+      ],
+    },
+    speakerNotes:
+      "把痛点和方案一一对应：信息分散对应自动总结，跟进慢对应建议生成，CRM 负担对应自动结构化记录。",
+  },
+  {
+    id: "sales-product",
+    order: 4,
+    title: "产品展示",
+    layout: "product",
+    legacyContent: {
+      subtitle: "从客户沟通到销售动作的闭环",
+      bullets: [
+        "导入通话 / 聊天记录",
+        "生成客户摘要",
+        "推荐跟进话术",
+        "同步 CRM 字段",
+      ],
+    },
+    speakerNotes:
+      "这里可以放产品截图或流程图。当前示例用可编辑组件和局部视觉占位，后续可替换为真实产品截图。",
+  },
+  {
+    id: "sales-market",
+    order: 5,
+    title: "市场规模",
+    layout: "chart",
+    legacyContent: {
+      subtitle: "销售科技与 AI 助手市场机会",
+      bullets: [
+        "目标客户：B2B 销售团队",
+        "TAM / SAM / SOM 待补充",
+        "市场增长数据待补充",
+        "优先切入中小销售团队",
+      ],
+      chartData: [
+        { label: "TAM", value: 80 },
+        { label: "SAM", value: 48 },
+        { label: "SOM", value: 20 },
+      ],
+    },
+    speakerNotes:
+      "当前图表是可编辑占位，不代表真实市场规模。正式 BP 需要引用可信市场报告或自下而上的测算。",
+  },
+  {
+    id: "sales-model",
+    order: 6,
+    title: "商业模式",
+    layout: "table",
+    legacyContent: {
+      subtitle: "订阅、增值能力和企业集成",
+      bullets: ["SaaS 订阅", "团队席位收费", "企业集成服务"],
+      table: [
+        ["项目", "说明"],
+        ["收入来源", "订阅费 / 企业服务待验证"],
+        ["定价方式", "按席位或团队套餐待补充"],
+        ["成本结构", "模型调用、存储、销售支持待补充"],
+        ["毛利假设", "待补充"],
+      ],
+    },
+    speakerNotes:
+      "商业模式要讲清楚如何收费、谁付费、付费频率以及主要成本项。没有真实财务模型时保持待补充。",
+  },
+  {
+    id: "sales-competition",
+    order: 7,
+    title: "竞争分析",
+    layout: "two_columns",
+    legacyContent: {
+      subtitle: "从 CRM、销售自动化到 AI 助手",
+      leftBullets: [
+        "CRM 平台：待补充",
+        "销售自动化工具：待补充",
+        "通用 AI 助手：待补充",
+      ],
+      rightBullets: [
+        "面向销售场景深度适配",
+        "跟进建议与 CRM 字段联动",
+        "团队知识沉淀能力",
+      ],
+    },
+    speakerNotes:
+      "不能虚构竞品数据。这里先给竞争类别和差异化方向，正式版本需要补充具体竞品和对比指标。",
+  },
+  {
+    id: "sales-growth",
+    order: 8,
+    title: "增长策略",
+    layout: "timeline",
+    legacyContent: {
+      subtitle: "从种子客户验证到可复制获客",
+      bullets: ["种子客户试点", "行业内容获客", "CRM 生态合作"],
+      timeline: [
+        { label: "0-3 月", description: "验证 3-5 个种子团队" },
+        { label: "3-6 月", description: "沉淀可复用销售 playbook" },
+        { label: "6-12 月", description: "拓展渠道合作与行业案例" },
+      ],
+    },
+    speakerNotes:
+      "增长策略要强调阶段目标。前期不急于大规模投放，先验证高频使用和付费意愿。",
+  },
+  {
+    id: "sales-team",
+    order: 9,
+    title: "团队介绍",
+    layout: "team",
+    legacyContent: {
+      subtitle: "销售科技、AI 产品和企业服务经验",
+      bullets: ["核心成员：待补充", "AI 产品经验：待补充", "销售行业资源：待补充"],
+      teamMembers: [
+        { name: "产品负责人", role: "AI 产品 / 待补充" },
+        { name: "技术负责人", role: "模型与工程 / 待补充" },
+        { name: "商业负责人", role: "销售增长 / 待补充" },
+      ],
+    },
+    speakerNotes:
+      "团队页要和项目强相关，重点讲为什么这个团队能做成。当前示例没有真实团队信息，保留待补充。",
+  },
+  {
+    id: "sales-finance",
+    order: 10,
+    title: "财务预测 / 融资计划",
+    layout: "table",
+    legacyContent: {
+      subtitle: "收入、成本、融资金额和资金用途",
+      bullets: ["收入预测：待补充", "成本预测：待补充", "融资金额：待补充"],
+      table: [
+        ["项目", "数值 / 说明"],
+        ["收入预测", "待补充"],
+        ["成本预测", "待补充"],
+        ["融资金额", "待补充"],
+        ["资金用途", "研发 / 获客 / 运营待补充"],
+      ],
+    },
+    speakerNotes:
+      "财务页严禁编造融资金额和收入数据。第一版可以先保留结构，等用户输入真实计划后再生成。",
+  },
+  {
+    id: "sales-milestone",
+    order: 11,
+    title: "里程碑",
+    layout: "timeline",
+    legacyContent: {
+      subtitle: "已完成进展与未来 6-12 个月计划",
+      bullets: ["原型验证：待补充", "试点客户：待补充", "商业化节点：待补充"],
+      timeline: [
+        { label: "已完成", description: "产品原型与访谈待补充" },
+        { label: "6 个月", description: "完成种子客户验证" },
+        { label: "12 个月", description: "形成可复制获客模型" },
+      ],
+    },
+    speakerNotes:
+      "里程碑要展示执行节奏。正式版本建议补充已完成事实，而不是只写计划。",
+  },
+  {
+    id: "sales-ending",
+    order: 12,
+    title: "结束页",
+    layout: "qna",
+    legacyContent: {
+      subtitle: "让销售团队把时间留给真正的客户沟通",
+      bullets: ["总结：待补充", "联系方式：待补充", "欢迎交流"],
+    },
+    speakerNotes:
+      "结束页用一句话回到价值主张，并留下联系方式。可以准备一两个投资人常问问题。",
   },
 ];

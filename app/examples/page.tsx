@@ -20,7 +20,7 @@ const examples = [
     description: "包含痛点、解决方案、市场规模、商业模式和融资计划。",
     sections: ["痛点与机会", "产品展示", "商业模式", "里程碑"],
     icon: Building2,
-    href: "/projects/demo-business_plan-artful",
+    href: "/projects/example-business-sales-ai",
   },
 ];
 
