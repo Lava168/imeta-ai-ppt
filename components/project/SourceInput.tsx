@@ -1,5 +1,6 @@
 "use client";
 
+import { FileText, UploadCloud } from "lucide-react";
 import type { UseFormRegisterReturn } from "react-hook-form";
 
 import { Input } from "@/components/ui/input";
@@ -29,14 +30,25 @@ export function SourceInput({
 }: SourceInputProps) {
   return (
     <div className="space-y-5">
-      <div className="space-y-2 rounded-md border border-white/70 bg-white/[0.45] p-4">
-        <Label htmlFor="topic">主题</Label>
+      <div className="focus-field space-y-2 rounded-md border border-white/70 bg-white/[0.45] p-4">
+        <div className="flex items-center justify-between gap-3">
+          <Label htmlFor="topic">主题</Label>
+          <span className="rounded-full bg-white/[0.58] px-2.5 py-1 text-[11px] text-muted-foreground">
+            required
+          </span>
+        </div>
         <Input id="topic" placeholder={topicPlaceholder} {...topicProps} />
         {topicError ? <p className="text-xs text-red-600">{topicError}</p> : null}
       </div>
 
-      <div className="space-y-2 rounded-md border border-white/70 bg-white/[0.45] p-4">
-        <Label htmlFor="sourceText">资料文本</Label>
+      <div className="focus-field space-y-2 rounded-md border border-white/70 bg-white/[0.45] p-4">
+        <div className="flex items-center justify-between gap-3">
+          <Label htmlFor="sourceText">资料文本</Label>
+          <span className="inline-flex items-center gap-1 rounded-full bg-white/[0.58] px-2.5 py-1 text-[11px] text-muted-foreground">
+            <FileText className="h-3 w-3" />
+            optional
+          </span>
+        </div>
         <Textarea
           id="sourceText"
           placeholder={sourcePlaceholder}
@@ -51,9 +63,14 @@ export function SourceInput({
         ) : null}
       </div>
 
-      <div className="space-y-2 rounded-md border border-dashed border-primary/20 bg-white/[0.36] p-4">
-        <Label htmlFor="uploadFile">上传文件</Label>
-        <Input id="uploadFile" type="file" accept=".txt,.md" {...uploadFileProps} />
+      <div className="focus-field space-y-3 rounded-md border border-dashed border-primary/25 bg-white/[0.36] p-4">
+        <div className="flex items-center justify-between gap-3">
+          <Label htmlFor="uploadFile">上传文件</Label>
+          <UploadCloud className="h-4 w-4 text-primary" />
+        </div>
+        <div className="rounded-md border border-white/70 bg-white/[0.44] p-3">
+          <Input id="uploadFile" type="file" accept=".txt,.md" {...uploadFileProps} />
+        </div>
         <p className="text-xs text-muted-foreground">
           当前支持 txt / md。PDF 与 Word 将在后续阶段接入。
         </p>

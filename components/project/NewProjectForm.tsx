@@ -3,8 +3,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   BrainCircuit,
+  BadgeCheck,
   FileText,
-  FileUp,
   Layers3,
   MessageSquareText,
   WandSparkles,
@@ -197,6 +197,15 @@ export function NewProjectForm() {
         </CardHeader>
         <CardContent>
           <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+            <div className="xl:hidden">
+              <CompactDeckPreview
+                scenarioLabel={selectedScenarioLabel}
+                topic={topic}
+                slideCount={slideCount}
+                templateName={selectedTemplate?.name ?? templateKey}
+              />
+            </div>
+
             <div className="grid gap-4 md:grid-cols-2">
               <ScenarioSelector
                 value={scenario}
@@ -229,10 +238,24 @@ export function NewProjectForm() {
               error={errors.templateKey?.message}
             />
 
-            <Button type="submit" size="lg">
-              <WandSparkles className="mr-2 h-4 w-4" />
-              生成大纲
-            </Button>
+            <div className="sticky bottom-4 z-10 rounded-md border border-white/75 bg-white/[0.72] p-3 shadow-[0_18px_55px_rgba(64,58,50,0.12)] backdrop-blur-xl">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm font-semibold">准备生成结构化大纲</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    先进入工作台预览和编辑，再导出可编辑 PPTX。
+                  </p>
+                </div>
+                <Button
+                  type="submit"
+                  size="lg"
+                  className="kinetic-surface shrink-0 overflow-hidden"
+                >
+                  <WandSparkles className="mr-2 h-4 w-4" />
+                  生成大纲
+                </Button>
+              </div>
+            </div>
           </form>
         </CardContent>
       </Card>
@@ -251,19 +274,26 @@ export function NewProjectForm() {
 
         <Card className="surface-panel overflow-hidden">
           <CardHeader>
-            <CardTitle className="text-lg">资料素材</CardTitle>
-            <CardDescription>先支持 txt / md，后续再扩展 PDF 和 Word。</CardDescription>
+            <CardTitle className="text-lg">可信生成原则</CardTitle>
+            <CardDescription>iMeta 优先保证可编辑和事实边界。</CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="flex min-h-36 flex-col items-center justify-center rounded-md border border-dashed border-primary/20 bg-white/[0.42] p-5 text-center">
-              <span className="grid h-10 w-10 place-items-center rounded-md bg-secondary text-primary shadow-sm">
-                <FileUp className="h-5 w-5" />
-              </span>
-              <span className="mt-3 text-sm font-medium">资料文本可选</span>
-              <span className="mt-1 text-xs text-muted-foreground">
-                可先粘贴摘要、项目介绍或关键材料。
-              </span>
-            </div>
+          <CardContent className="space-y-2">
+            {[
+              "缺失事实标记待补充",
+              "标题正文保持可编辑",
+              "图片只作为局部组件",
+            ].map((item, index) => (
+              <div
+                key={item}
+                className="stagger-rise flex items-center gap-3 rounded-md border border-white/70 bg-white/[0.46] p-3 text-sm"
+                style={{ animationDelay: `${index * 90}ms` }}
+              >
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-secondary text-primary">
+                  <BadgeCheck className="h-4 w-4" />
+                </span>
+                <span>{item}</span>
+              </div>
+            ))}
           </CardContent>
         </Card>
       </aside>
@@ -316,6 +346,23 @@ function LiveDeckPreview({
               </span>
             </div>
 
+            <div className="mb-3 flex gap-2">
+              {previewSections.map((section, index) => (
+                <div
+                  key={section}
+                  className="stagger-rise flex-1 rounded-sm border border-white/70 bg-white/[0.54] px-2 py-1.5 text-[10px] text-muted-foreground"
+                  style={{ animationDelay: `${index * 80}ms` }}
+                >
+                  <span className="font-semibold text-primary">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <span className="ml-1 hidden sm:inline xl:hidden 2xl:inline">
+                    {section}
+                  </span>
+                </div>
+              ))}
+            </div>
+
             <div className="aspect-video rounded-md border border-white/80 bg-[#fffdf8] p-5 shadow-[0_18px_44px_rgba(64,58,50,0.08)]">
               <p className="text-xs font-semibold uppercase text-primary">
                 cover
@@ -349,6 +396,45 @@ function LiveDeckPreview({
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+function CompactDeckPreview({
+  scenarioLabel,
+  topic,
+  slideCount,
+  templateName,
+}: {
+  scenarioLabel: string;
+  topic: string;
+  slideCount: string;
+  templateName: string;
+}) {
+  return (
+    <div className="kinetic-surface rounded-md border border-white/70 bg-white/[0.46] p-3 shadow-sm">
+      <div className="mb-3 flex items-center justify-between gap-3 text-xs">
+        <span className="font-semibold text-primary">{scenarioLabel}</span>
+        <span className="rounded-full border border-white/70 bg-white/[0.58] px-2.5 py-1 text-muted-foreground">
+          {slideCount} 页 · {templateName}
+        </span>
+      </div>
+      <div className="slow-pan rounded-md border border-white/75 bg-[linear-gradient(135deg,#fbfaf7,#dde5dd_45%,#d7dbe1_72%,#ead8cf)] p-4">
+        <p className="text-[11px] font-semibold uppercase text-primary">
+          preview
+        </p>
+        <h3 className="mt-3 line-clamp-2 text-lg font-semibold">
+          {topic.trim() || "输入主题后，预览会同步更新"}
+        </h3>
+        <div className="mt-4 grid grid-cols-[1fr_92px] gap-3">
+          <div className="space-y-2">
+            <div className="h-2 w-2/3 rounded-sm bg-foreground/80" />
+            <div className="h-2 w-1/2 rounded-sm bg-[#c9b7a8]" />
+            <div className="h-2 w-3/5 rounded-sm bg-[#d7dbe1]" />
+          </div>
+          <div className="soft-shimmer h-16 rounded-md border border-white/75 bg-[linear-gradient(135deg,#758b7f,#c9b7a8,#d7dbe1,#ede7dc)]" />
+        </div>
+      </div>
+    </div>
   );
 }
 

@@ -7,6 +7,11 @@ import { SCENARIOS } from "@/lib/constants/scenarios";
 import type { ProjectScenario } from "@/lib/types/project";
 import { cn } from "@/lib/utils";
 
+const scenarioStructure: Record<ProjectScenario, string[]> = {
+  research_presentation: ["背景", "方法", "结果"],
+  business_plan: ["痛点", "方案", "增长"],
+};
+
 type ScenarioSelectorProps = {
   value: ProjectScenario;
   onChange: (value: ProjectScenario) => void;
@@ -32,7 +37,7 @@ export function ScenarioSelector({
               type="button"
               onClick={() => onChange(scenario.value)}
               className={cn(
-                "premium-lift rounded-md border border-white/75 bg-white/[0.54] p-4 text-left shadow-sm",
+                "premium-lift group rounded-md border border-white/75 bg-white/[0.54] p-4 text-left shadow-sm",
                 selected &&
                   "border-primary/35 bg-secondary/55 shadow-[inset_0_0_0_1px_rgba(100,125,115,0.26),0_18px_40px_rgba(64,58,50,0.085)]",
               )}
@@ -51,6 +56,17 @@ export function ScenarioSelector({
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
                 {scenario.description}
               </p>
+              <div className="mt-4 grid grid-cols-3 gap-2">
+                {scenarioStructure[scenario.value].map((item, index) => (
+                  <span
+                    key={item}
+                    className="stagger-rise rounded-sm border border-white/70 bg-white/[0.54] px-2 py-1.5 text-center text-xs text-muted-foreground transition-colors duration-300 group-hover:bg-white/[0.78]"
+                    style={{ animationDelay: `${index * 90}ms` }}
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
             </button>
           );
         })}
