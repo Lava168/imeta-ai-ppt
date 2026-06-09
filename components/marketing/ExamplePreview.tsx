@@ -1,5 +1,8 @@
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 type ExamplePreviewProps = {
@@ -8,6 +11,7 @@ type ExamplePreviewProps = {
   description: string;
   sections: string[];
   icon: LucideIcon;
+  href: string;
 };
 
 export function ExamplePreview({
@@ -16,6 +20,7 @@ export function ExamplePreview({
   description,
   sections,
   icon: Icon,
+  href,
 }: ExamplePreviewProps) {
   return (
     <Card className="morandi-card overflow-hidden bg-white/[0.58]">
@@ -33,6 +38,12 @@ export function ExamplePreview({
           <p className="mt-4 text-sm leading-6 text-muted-foreground">
             {description}
           </p>
+          <Button asChild className="mt-5" variant="outline">
+            <Link href={href}>
+              打开完整示例
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+          </Button>
         </div>
 
         <div className="bg-[#f7f3eb] p-4">

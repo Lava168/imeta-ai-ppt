@@ -29,6 +29,10 @@ export function createMockProject(values: NewProjectFormValues) {
 }
 
 export function getMockProject(projectId: string): ProjectDetailMock {
+  if (projectId === "example-research-medical-ai") {
+    return buildExampleResearchMedicalProject(projectId);
+  }
+
   const scenario: ProjectScenario = projectId.includes("business_plan")
     ? "business_plan"
     : "research_presentation";
@@ -49,6 +53,32 @@ export function getMockProject(projectId: string): ProjectDetailMock {
       updatedAt: now,
     },
     slides: slides.map((slide) => hydrateSlideDraft(slide, scenario, projectId)),
+  };
+}
+
+function buildExampleResearchMedicalProject(
+  projectId: string,
+): ProjectDetailMock {
+  const title = "多模态大模型在医学影像诊断中的应用";
+  const slides = exampleResearchMedicalSlides;
+
+  return {
+    project: {
+      id: projectId,
+      title,
+      scenario: "research_presentation",
+      topic: title,
+      sourceText:
+        "示例资料：本汇报围绕多模态大模型在医学影像诊断中的应用展开，重点讨论研究背景、相关工作、方法框架、数据与评估、结果解读、局限与未来方向。由于未提供真实论文全文，具体样本数量、模型名称和实验结果均以待补充标记呈现。",
+      slideCount: slides.length,
+      templateKey: "research_modern",
+      status: "outline_ready",
+      createdAt: now,
+      updatedAt: now,
+    },
+    slides: slides.map((slide) =>
+      hydrateSlideDraft(slide, "research_presentation", projectId),
+    ),
   };
 }
 
@@ -466,6 +496,182 @@ const researchSlides: SlideDraft[] = [
       bullets: ["欢迎提问", "谢谢观看"],
     },
     speakerNotes: "预留互动时间。",
+  },
+];
+
+const exampleResearchMedicalSlides: SlideDraft[] = [
+  {
+    id: "medical-cover",
+    order: 1,
+    title: "多模态大模型在医学影像诊断中的应用",
+    layout: "cover",
+    legacyContent: {
+      subtitle: "科研论文汇报示例 · 可编辑 PPTX 工作流",
+      bullets: ["汇报人：待补充", "单位：待补充", "日期：待补充"],
+    },
+    speakerNotes:
+      "开场说明本次汇报聚焦医学影像诊断中的多模态大模型应用。由于当前是示例资料，真实作者、单位、数据规模和论文结果需要在正式资料中补充。",
+  },
+  {
+    id: "medical-background",
+    order: 2,
+    title: "研究背景",
+    layout: "section",
+    legacyContent: {
+      subtitle: "医学影像诊断正在进入多模态协同阶段",
+      bullets: [
+        "影像诊断依赖专业经验",
+        "单一模态信息存在局限",
+        "临床文本可补充上下文",
+        "AI 辅助需强调可靠性",
+      ],
+    },
+    speakerNotes:
+      "这一页用于解释研究动机：医学影像诊断不仅依赖图像本身，也受到病史、报告文本和临床指标影响。多模态模型的价值在于整合这些信息，但医疗场景对可靠性和可解释性要求很高。",
+  },
+  {
+    id: "medical-literature",
+    order: 3,
+    title: "文献综述 / 相关研究",
+    layout: "title_bullets",
+    legacyContent: {
+      subtitle: "从影像模型到视觉语言模型",
+      bullets: [
+        "CNN 已广泛用于影像分类",
+        "Transformer 提升全局建模",
+        "视觉语言模型连接图文信息",
+        "医学领域仍需专门适配",
+        "真实临床验证仍待补充",
+      ],
+    },
+    speakerNotes:
+      "不要把相关工作讲成论文罗列。建议按技术演进讲：传统影像模型、Transformer、视觉语言模型，再落到医学场景的适配问题。",
+  },
+  {
+    id: "medical-question",
+    order: 4,
+    title: "研究问题 / 研究假设",
+    layout: "two_columns",
+    legacyContent: {
+      subtitle: "模型能力与临床可用性如何同时提升",
+      leftBullets: [
+        "如何融合影像与文本信息",
+        "如何减少诊断不确定性",
+        "如何解释模型判断依据",
+      ],
+      rightBullets: [
+        "多模态融合可提升表现",
+        "注意力区域有助解释",
+        "真实临床收益待验证",
+      ],
+    },
+    speakerNotes:
+      "这一页要明确研究问题和假设。由于没有真实论文全文，不能声称模型已经显著提升诊断准确率，只能把它作为研究假设或待验证目标。",
+  },
+  {
+    id: "medical-method",
+    order: 5,
+    title: "数据与方法",
+    layout: "table",
+    legacyContent: {
+      subtitle: "数据、模态、模型和评估指标",
+      bullets: ["影像数据：待补充", "文本数据：待补充", "模型结构：待补充"],
+      table: [
+        ["模块", "示例内容"],
+        ["影像模态", "CT / MRI / X-ray 待补充"],
+        ["文本模态", "报告文本 / 病史 待补充"],
+        ["模型框架", "视觉编码器 + 语言模型 待补充"],
+        ["评估指标", "AUC / F1 / 敏感性 待补充"],
+      ],
+    },
+    speakerNotes:
+      "这里要特别避免编造样本数量、数据集名称和模型名称。正式接入论文全文后，这些字段应该由 AI 从资料中提取；资料缺失时保留待补充。",
+  },
+  {
+    id: "medical-results",
+    order: 6,
+    title: "实验结果 / 实证结果",
+    layout: "chart",
+    legacyContent: {
+      subtitle: "结果图表占位，等待真实实验数据",
+      bullets: [
+        "主要发现：待补充",
+        "对比基线：待补充",
+        "统计显著性：待补充",
+        "错误案例：建议补充",
+      ],
+      chartData: [
+        { label: "Baseline", value: 42 },
+        { label: "Model", value: 64 },
+        { label: "Ablation", value: 52 },
+      ],
+    },
+    speakerNotes:
+      "当前图表只是可编辑占位，不代表真实结果。正式汇报时需要替换为论文中的真实指标，并说明是否有统计检验或外部验证。",
+  },
+  {
+    id: "medical-robustness",
+    order: 7,
+    title: "稳健性检验 / 进一步分析",
+    layout: "timeline",
+    legacyContent: {
+      subtitle: "从模型效果到临床可信度",
+      bullets: ["外部数据验证", "消融实验", "亚组分析", "错误案例分析"],
+      timeline: [
+        { label: "01", description: "跨数据集验证待补充" },
+        { label: "02", description: "模态消融实验待补充" },
+        { label: "03", description: "医生协同评估待补充" },
+      ],
+    },
+    speakerNotes:
+      "进一步分析部分可以体现论文质量。建议关注跨中心数据、模态消融、不同病种或人群的亚组表现，以及失败案例。",
+  },
+  {
+    id: "medical-conclusion",
+    order: 8,
+    title: "结论与启示",
+    layout: "conclusion",
+    legacyContent: {
+      subtitle: "技术潜力、理论贡献与实践价值",
+      bullets: [
+        "多模态建模有应用潜力",
+        "影像与文本可互补",
+        "临床落地需严格验证",
+        "可解释性仍是关键",
+      ],
+    },
+    speakerNotes:
+      "结论要收束到研究价值，不要过度营销。可以强调多模态 AI 的潜力，同时指出临床验证、监管和解释性仍是落地前提。",
+  },
+  {
+    id: "medical-limitations",
+    order: 9,
+    title: "不足与展望",
+    layout: "title_bullets",
+    legacyContent: {
+      subtitle: "面向真实临床部署的关键问题",
+      bullets: [
+        "样本代表性待确认",
+        "外部验证仍需补充",
+        "模型偏差需要评估",
+        "隐私与合规不可忽视",
+        "医生协同流程待设计",
+      ],
+    },
+    speakerNotes:
+      "这一页可以建立可信度。主动承认限制比夸大结果更符合科研汇报语气，尤其在医疗 AI 场景中。",
+  },
+  {
+    id: "medical-qna",
+    order: 10,
+    title: "Q&A",
+    layout: "qna",
+    legacyContent: {
+      subtitle: "欢迎交流与讨论",
+      bullets: ["谢谢观看", "欢迎提问", "联系方式：待补充"],
+    },
+    speakerNotes:
+      "结束时可以提示听众围绕数据来源、模型解释性、临床验证和部署风险提问。",
   },
 ];
 

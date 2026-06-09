@@ -12,6 +12,7 @@ const examples = [
     description: "包含研究背景、方法、实验结果、稳健性分析和 Q&A。",
     sections: ["研究背景", "数据与方法", "实验结果", "结论与展望"],
     icon: BookOpenText,
+    href: "/projects/example-research-medical-ai",
   },
   {
     title: "AI 销售助手商业计划书",
@@ -19,6 +20,7 @@ const examples = [
     description: "包含痛点、解决方案、市场规模、商业模式和融资计划。",
     sections: ["痛点与机会", "产品展示", "商业模式", "里程碑"],
     icon: Building2,
+    href: "/projects/demo-business_plan-artful",
   },
 ];
 
