@@ -14,22 +14,31 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { getMockProject } from "@/lib/api/projects";
+import type { ProjectDetailMock } from "@/lib/api/projects";
 import { patchComponentById } from "@/lib/slideComponentAccessors";
 import type { ProjectStatus } from "@/lib/types/project";
 import type { SlideComponent, SlideViewModel } from "@/lib/types/slide";
 
 type ProjectWorkspaceProps = {
   projectId: string;
+  initialDetail?: ProjectDetailMock;
 };
 
-export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
-  const detail = useMemo(() => getMockProject(projectId), [projectId]);
+export function ProjectWorkspace({
+  projectId,
+  initialDetail,
+}: ProjectWorkspaceProps) {
+  const detail = useMemo(
+    () => initialDetail ?? getMockProject(projectId),
+    [initialDetail, projectId],
+  );
   const [slides, setSlides] = useState<SlideViewModel[]>(detail.slides);
   const [selectedId, setSelectedId] = useState(detail.slides[0].id);
   const [selectedComponentId, setSelectedComponentId] = useState(
     detail.slides[0].components[0]?.id ?? "",
   );
   const [status, setStatus] = useState<ProjectStatus>(detail.project.status);
+  const [isSaving, setIsSaving] = useState(false);
   const selectedSlide = useMemo(
     () => slides.find((slide) => slide.id === selectedId) ?? slides[0],
     [selectedId, slides],
@@ -92,6 +101,41 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
         };
       }),
     );
+
+    void fetch(`/api/components/${componentId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(patch),
+    }).catch(() => undefined);
+  }
+
+  async function persistProject(nextStatus: ProjectStatus = status) {
+    setIsSaving(true);
+
+    try {
+      const response = await fetch(`/api/projects/${projectId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          slides,
+          status: nextStatus,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("保存失败");
+      }
+
+      setStatus(nextStatus);
+    } catch {
+      setStatus(nextStatus);
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   return (
@@ -102,8 +146,9 @@ export function ProjectWorkspace({ projectId }: ProjectWorkspaceProps) {
         status={status}
         exported={exported}
         onGenerateOutline={() => setStatus("outline_ready")}
-        onSave={() => setStatus("outline_ready")}
-        onExport={() => setStatus("pptx_ready")}
+        onSave={() => void persistProject("outline_ready")}
+        onExport={() => void persistProject("pptx_ready")}
+        busy={isSaving}
       />
 
       <div className="relative mx-auto grid w-full max-w-[1500px] gap-5 px-6 py-6 lg:grid-cols-[230px_minmax(0,1fr)_390px]">

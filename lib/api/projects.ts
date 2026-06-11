@@ -1,8 +1,11 @@
 import { getDefaultTemplateKey } from "@/lib/constants/templates";
+import type { GeneratedOutline } from "@/lib/ai/prompts/types";
 import type {
   NewProjectFormValues,
   ProjectScenario,
+  ProjectStatus,
   ProjectViewModel,
+  TemplateKey,
 } from "@/lib/types/project";
 import type {
   AiImageComponentRole,
@@ -57,6 +60,59 @@ export function getMockProject(projectId: string): ProjectDetailMock {
       updatedAt: now,
     },
     slides: slides.map((slide) => hydrateSlideDraft(slide, scenario, projectId)),
+  };
+}
+
+export function buildProjectFromOutline({
+  id,
+  scenario,
+  sourceText,
+  templateKey,
+  outline,
+}: {
+  id: string;
+  scenario: ProjectScenario;
+  sourceText?: string;
+  templateKey: TemplateKey;
+  outline: GeneratedOutline;
+}): ProjectDetailMock {
+  const slides = outline.sections.map((section, index) =>
+    hydrateSlideDraft(
+      {
+        id: `${section.id || "slide"}-${index + 1}`,
+        order: index + 1,
+        title: section.title,
+        layout: pickLayout(scenario, index, section.title),
+        legacyContent: {
+          subtitle: section.subtitle,
+          bullets: section.bullets,
+          table: buildTableIfNeeded(section.title, section.bullets),
+          chartData: buildChartIfNeeded(section.title),
+          timeline: buildTimelineIfNeeded(section.title, section.bullets),
+        },
+        speakerNotes: section.speakerNotes,
+      },
+      scenario,
+      id,
+    ),
+  );
+
+  const status: ProjectStatus = "outline_ready";
+
+  return {
+    project: {
+      id,
+      title: outline.title,
+      scenario,
+      topic: outline.title,
+      sourceText,
+      slideCount: slides.length,
+      templateKey,
+      status,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+    slides,
   };
 }
 
@@ -159,6 +215,82 @@ function hydrateSlideDraft(
     createdAt: now,
     updatedAt: now,
   };
+}
+
+function pickLayout(
+  scenario: ProjectScenario,
+  index: number,
+  title: string,
+): SlideLayout {
+  if (index === 0) {
+    return "cover";
+  }
+
+  if (/q&a|问答|结束/i.test(title)) {
+    return "qna";
+  }
+
+  if (/数据|方法|商业模式|财务|融资/i.test(title)) {
+    return "table";
+  }
+
+  if (/结果|市场规模|图表/i.test(title)) {
+    return "chart";
+  }
+
+  if (/稳健|进一步|增长|里程碑/i.test(title)) {
+    return "timeline";
+  }
+
+  if (/团队|作者分工/i.test(title)) {
+    return "team";
+  }
+
+  if (/研究问题|假设|竞争|解决方案|痛点/i.test(title)) {
+    return "two_columns";
+  }
+
+  if (/结论|启示/i.test(title)) {
+    return "conclusion";
+  }
+
+  return scenario === "business_plan" && /产品/i.test(title)
+    ? "product"
+    : "title_bullets";
+}
+
+function buildTableIfNeeded(title: string, bullets: string[]) {
+  if (!/数据|方法|商业模式|财务|融资/i.test(title)) {
+    return undefined;
+  }
+
+  return [
+    ["模块", "内容"],
+    ...bullets.slice(0, 4).map((bullet) => [bullet.replace(/[:：].*$/, ""), bullet]),
+  ];
+}
+
+function buildChartIfNeeded(title: string) {
+  if (!/结果|市场规模|图表/i.test(title)) {
+    return undefined;
+  }
+
+  return [
+    { label: "A", value: 42 },
+    { label: "B", value: 64 },
+    { label: "C", value: 52 },
+  ];
+}
+
+function buildTimelineIfNeeded(title: string, bullets: string[]) {
+  if (!/稳健|进一步|增长|里程碑/i.test(title)) {
+    return undefined;
+  }
+
+  return bullets.slice(0, 4).map((bullet, index) => ({
+    label: String(index + 1).padStart(2, "0"),
+    description: bullet,
+  }));
 }
 
 function buildSlideComponents(

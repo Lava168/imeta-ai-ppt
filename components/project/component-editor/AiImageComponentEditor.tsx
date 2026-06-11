@@ -1,6 +1,7 @@
 "use client";
 
 import { ImageOff, RefreshCcw, Sparkles, Trash2 } from "lucide-react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +19,7 @@ import type {
   AiImageSlideComponent,
   AiImageStatus,
   AiImageStylePreset,
+  SlideComponent,
 } from "@/lib/types/slide";
 
 const stylePresetOptions: Array<{
@@ -45,17 +47,58 @@ const aiStatusLabels: Record<AiImageStatus, string> = {
 type AiImageComponentEditorProps = {
   component: AiImageSlideComponent;
   onDataChange: (data: Partial<AiImageSlideComponent["data"]>) => void;
-  onMarkGenerating: () => void;
-  onClearImage: () => void;
+  onComponentReplace?: (component: SlideComponent) => void;
 };
 
 export function AiImageComponentEditor({
   component,
   onDataChange,
-  onMarkGenerating,
-  onClearImage,
+  onComponentReplace,
 }: AiImageComponentEditorProps) {
   const hasImage = Boolean(component.data.imageUrl);
+  const [error, setError] = useState("");
+
+  async function generateImage() {
+    setError("");
+    onDataChange({ status: "generating" });
+
+    const response = await fetch(`/api/components/${component.id}/generate-image`, {
+      method: "POST",
+    });
+    const result = (await response.json()) as {
+      component?: SlideComponent;
+      error?: string;
+    };
+
+    if (result.component) {
+      onComponentReplace?.(result.component);
+    }
+
+    if (!response.ok) {
+      setError(result.error ?? "图片生成失败");
+    }
+  }
+
+  async function clearImage() {
+    setError("");
+    onDataChange({ imageUrl: "", revisedPrompt: "", status: "idle" });
+
+    const response = await fetch(`/api/components/${component.id}/image`, {
+      method: "DELETE",
+    });
+    const result = (await response.json()) as {
+      component?: SlideComponent;
+      error?: string;
+    };
+
+    if (result.component) {
+      onComponentReplace?.(result.component);
+    }
+
+    if (!response.ok) {
+      setError(result.error ?? "清空失败");
+    }
+  }
 
   return (
     <div className="space-y-4">
@@ -137,19 +180,29 @@ export function AiImageComponentEditor({
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <Button type="button" onClick={onMarkGenerating}>
+        <Button
+          type="button"
+          onClick={generateImage}
+          disabled={component.data.status === "generating"}
+        >
           <Sparkles className="mr-2 h-4 w-4" />
-          生成图片
+          {component.data.status === "generating" ? "生成中" : "生成图片"}
         </Button>
-        <Button type="button" variant="secondary" onClick={onMarkGenerating}>
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={generateImage}
+          disabled={component.data.status === "generating"}
+        >
           <RefreshCcw className="mr-2 h-4 w-4" />
           重新生成
         </Button>
-        <Button type="button" variant="outline" onClick={onClearImage}>
+        <Button type="button" variant="outline" onClick={clearImage}>
           <Trash2 className="mr-2 h-4 w-4" />
           清空
         </Button>
       </div>
+      {error ? <p className="text-xs text-red-600">{error}</p> : null}
 
       <div className="atelier-glow rounded-md border border-white/70 bg-[#f4efe5] p-3 transition-all duration-700 hover:-translate-y-0.5">
         {hasImage ? (

@@ -1,4 +1,5 @@
 export type OutlinePromptInput = {
+  scenario?: "research_presentation" | "business_plan";
   topic: string;
   sourceText?: string;
   slideCount: number;
@@ -15,6 +16,21 @@ export type OutlinePrompt = {
   responseFormat: {
     type: "json_object";
   };
+};
+
+export type GeneratedOutlineSection = {
+  id: string;
+  title: string;
+  subtitle?: string;
+  bullets: string[];
+  speakerNotes: string;
+};
+
+export type GeneratedOutline = {
+  title: string;
+  scenario: "research_presentation" | "business_plan";
+  language: "zh-CN";
+  sections: GeneratedOutlineSection[];
 };
 
 export const outlineJsonSchemaDescription = `

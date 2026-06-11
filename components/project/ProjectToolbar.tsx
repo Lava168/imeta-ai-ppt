@@ -14,6 +14,7 @@ type ProjectToolbarProps = {
   onGenerateOutline: () => void;
   onSave: () => void;
   onExport: () => void;
+  busy?: boolean;
 };
 
 export function ProjectToolbar({
@@ -24,6 +25,7 @@ export function ProjectToolbar({
   onGenerateOutline,
   onSave,
   onExport,
+  busy = false,
 }: ProjectToolbarProps) {
   return (
     <header className="border-b border-white/70 bg-white/[0.62] px-6 py-4 backdrop-blur-xl">
@@ -40,17 +42,17 @@ export function ProjectToolbar({
             <Sparkles className="mr-2 h-4 w-4" />
             大纲
           </Button>
-          <Button type="button" variant="secondary" onClick={onSave}>
+          <Button type="button" variant="secondary" onClick={onSave} disabled={busy}>
             <Save className="mr-2 h-4 w-4" />
-            保存
+            {busy ? "保存中" : "保存"}
           </Button>
-          <Button type="button" onClick={onExport}>
+          <Button type="button" onClick={onExport} disabled={busy}>
             <FileDown className="mr-2 h-4 w-4" />
             导出 PPTX
           </Button>
           {exported ? (
             <Button asChild type="button" variant="outline">
-              <a href="/api/projects/demo/pptx">
+              <a href={`/api/projects/${projectId}/pptx`}>
                 <Download className="mr-2 h-4 w-4" />
                 下载 PPTX
               </a>

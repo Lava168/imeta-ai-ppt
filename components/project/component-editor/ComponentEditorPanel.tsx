@@ -98,23 +98,8 @@ function ComponentSpecificEditor({
             },
           } as Partial<AiImageSlideComponent>)
         }
-        onMarkGenerating={() =>
-          onChange({
-            data: {
-              ...component.data,
-              status: "generating",
-            },
-          } as Partial<AiImageSlideComponent>)
-        }
-        onClearImage={() =>
-          onChange({
-            data: {
-              ...component.data,
-              imageUrl: "",
-              revisedPrompt: "",
-              status: "idle",
-            },
-          } as Partial<AiImageSlideComponent>)
+        onComponentReplace={(nextComponent) =>
+          onChange(nextComponent as Partial<AiImageSlideComponent>)
         }
       />
     );

@@ -10,7 +10,7 @@ import {
   WandSparkles,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -40,9 +40,7 @@ import {
   TEMPLATE_KEYS,
   TEMPLATE_OPTIONS_BY_SCENARIO,
 } from "@/lib/constants/templates";
-import { createMockProject } from "@/lib/api/projects";
 import type {
-  NewProjectFormValues,
   ProjectScenario,
   TemplateKey,
 } from "@/lib/types/project";
@@ -96,6 +94,7 @@ export function NewProjectForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialScenario = normalizeScenario(searchParams.get("scenario"));
+  const [submitError, setSubmitError] = useState("");
   const form = useForm<NewProjectFormInput>({
     resolver: zodResolver(newProjectSchema),
     defaultValues: {
@@ -107,7 +106,7 @@ export function NewProjectForm() {
     },
   });
   const {
-    formState: { errors },
+    formState: { errors, isSubmitting },
     getValues,
     handleSubmit,
     register,
@@ -168,14 +167,35 @@ export function NewProjectForm() {
     setValue("templateKey", value, { shouldDirty: true, shouldValidate: true });
   }
 
-  function onSubmit(values: NewProjectFormInput) {
-    const project = createMockProject({
-      ...values,
-      topic: values.topic.trim(),
-      sourceText: values.sourceText?.trim(),
-    } as NewProjectFormValues);
+  async function onSubmit(values: NewProjectFormInput) {
+    setSubmitError("");
 
-    router.push(`/projects/${project.id}`);
+    const formData = new FormData();
+    formData.set("scenario", values.scenario);
+    formData.set("topic", values.topic.trim());
+    formData.set("sourceText", values.sourceText?.trim() ?? "");
+    formData.set("slideCount", values.slideCount);
+    formData.set("templateKey", values.templateKey);
+
+    const file = values.uploadFile?.[0] as File | undefined;
+
+    if (file) {
+      formData.set("uploadFile", file);
+    }
+
+    const response = await fetch("/api/projects", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = (await response.json()) as { id?: string; error?: string };
+
+    if (!response.ok || !result.id) {
+      setSubmitError(result.error ?? "生成失败，请稍后重试");
+      return;
+    }
+
+    router.push(`/projects/${result.id}`);
   }
 
   return (
@@ -250,11 +270,15 @@ export function NewProjectForm() {
                   type="submit"
                   size="lg"
                   className="kinetic-surface shrink-0 overflow-hidden"
+                  disabled={isSubmitting}
                 >
                   <WandSparkles className="mr-2 h-4 w-4" />
-                  生成大纲
+                  {isSubmitting ? "生成中..." : "生成大纲"}
                 </Button>
               </div>
+              {submitError ? (
+                <p className="mt-3 text-sm text-red-600">{submitError}</p>
+              ) : null}
             </div>
           </form>
         </CardContent>
